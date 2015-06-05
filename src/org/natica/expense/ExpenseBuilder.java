@@ -34,9 +34,33 @@ public class ExpenseBuilder {
     
     public JComboBox generateProjectComboBox() {
         JComboBox comboBox = new JComboBox();
-        comboBox.addItem(ExpenseConstants.PROJECTS[0]);
-        comboBox.addItem(ExpenseConstants.PROJECTS[1]);
+        for (String s : ExpenseConstants.PROJECTS) {
+            comboBox.addItem(s);
+        }        
         return comboBox;
     }
     
+    public JComboBox generateExpenseTypeComboBox() {
+        JComboBox comboBox = new JComboBox();
+        for (String s : ExpenseConstants.EXPENSETYPES) {
+            comboBox.addItem(s);
+        }
+        return comboBox;        
+    }
+    
+    public JComboBox generatePaymentMethodComboBox() {
+        JComboBox comboBox = new JComboBox();
+        for (String s : ExpenseConstants.PAYMENTMETHOD) {
+            comboBox.addItem(s);
+        }
+        return comboBox;        
+    }
+
+    public JComboBox generateCurrencyComboBox() {
+        JComboBox comboBox = new JComboBox();
+        for (String s : ExpenseConstants.CURRENCY) {
+            comboBox.addItem(s);
+        }
+        return comboBox;        
+    }
 }

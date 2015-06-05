@@ -6,6 +6,8 @@
 
 package org.natica.expense;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import org.natica.expense.exceptions.ExpenseExcelFormatException;
 import java.io.File;
 import java.io.IOException;
@@ -13,10 +15,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
@@ -25,7 +30,7 @@ import javax.swing.table.TableColumn;
  * @author Anil
  */
 public class ExpenseForm extends javax.swing.JFrame {
-
+    private List<Expense> expenses;
     /**
      * Creates new form ExpenseForm
      */
@@ -43,34 +48,56 @@ public class ExpenseForm extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel2 = new javax.swing.JPanel();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPane1.getViewport().setBackground(Color.white);
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+
+        jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
+        jScrollPane1.setBorder(null);
+        jScrollPane1.setOpaque(false);
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 1142, Short.MAX_VALUE)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1190, Short.MAX_VALUE)
+                .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 614, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 680, Short.MAX_VALUE)
         );
 
-        jMenu1.setText("File");
+        jMenu1.setText("Dosya");
 
-        jMenuItem1.setText("Dosya Yükle");
+        jMenuItem1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/natica/expense/images/1433559149_open-file.png"))); // NOI18N
+        jMenuItem1.setText("Excel Aç");
+        jMenuItem1.setOpaque(true);
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem1ActionPerformed(evt);
             }
         });
         jMenu1.add(jMenuItem1);
+
+        jMenuItem2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/org/natica/expense/images/1433559346_vector_65_04.png"))); // NOI18N
+        jMenuItem2.setText("Yükle");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem2);
 
         jMenuBar1.add(jMenu1);
 
@@ -87,7 +114,7 @@ public class ExpenseForm extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
@@ -103,16 +130,25 @@ public class ExpenseForm extends javax.swing.JFrame {
                 ExpenseParser xp = new ExpenseParser();
                 try {
                     ExpenseBuilder eb = new ExpenseBuilder();
-                    DefaultTableModel model = new DefaultTableModel();
+                    DefaultTableModel model = new DefaultTableModel() {
+                        @Override
+                        public boolean isCellEditable(int row, int column) {
+                            return column != 0 && column != 5;
+                        }                        
+                    };
                     JTable table = new JTable(model);
                     eb.generateHeaders(model);
                     table.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(eb.generateProjectComboBox()));
-                    
-                    List<Expense> expenses = xp.parseExcel(selectedFile);
+                    table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(eb.generateExpenseTypeComboBox()));
+                    table.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(eb.generatePaymentMethodComboBox()));
+                    table.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(eb.generateCurrencyComboBox()));
+                    DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+                    rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
+                    table.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
+                    expenses = xp.parseExcel(selectedFile);
                     eb.populateTable(model, expenses);
-                        
-                    
-                   jScrollPane2.setViewportView(table);
+
+                    jScrollPane1.setViewportView(table);
                 } catch (IOException ex) {
                     Logger.getLogger(ExpenseForm.class.getName()).log(Level.SEVERE, null, ex);
                     JOptionPane.showMessageDialog(null, ex.getMessage(), "Dosya Okuma Hatası!", JOptionPane.ERROR_MESSAGE);
@@ -124,9 +160,15 @@ public class ExpenseForm extends javax.swing.JFrame {
             else {
                 JOptionPane.showMessageDialog(null, "Yalnızca XLS ve XLSX uzantılı dosyalar kullanılabilir.", "Hatalı Dosya Türü!", JOptionPane.ERROR_MESSAGE);
             }
-                    
-        } 
+
+        }
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        // TODO add your handling code here:
+        ExpenseImport ei = new ExpenseImport(ExpenseConstants.BASEURL);
+        ei.importExpenes(expenses);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -170,7 +212,10 @@ public class ExpenseForm extends javax.swing.JFrame {
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane1;
     // End of variables declaration//GEN-END:variables
+
+    
 }
