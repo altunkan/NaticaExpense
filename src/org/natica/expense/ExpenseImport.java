@@ -54,6 +54,7 @@ public class ExpenseImport {
         expensePageLink.click();	
     }
     
+    
     public void importExpenes(List<Expense> expenses) {
         setUpDriverConfig(ExpenseConstants.WAITSECONDS);
         openBrowser();
@@ -84,7 +85,8 @@ public class ExpenseImport {
             int expenseEntryYear = expenseEntryDateCal.get(Calendar.YEAR);
             int activeMonth = activeDateCal.get(Calendar.MONTH);
             int activeYear = activeDateCal.get(Calendar.YEAR);
-            //int diff = expenseEntryMonth - activeMonth
+            int diff = (activeYear - expenseEntryYear) * 12 + (activeMonth - expenseEntryMonth) + 1;
+                    
             
         }
     }
