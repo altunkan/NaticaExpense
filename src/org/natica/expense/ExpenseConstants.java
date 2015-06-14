@@ -28,6 +28,19 @@ public class ExpenseConstants {
     public static final String      SHOWBUTTONXPATH         = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_btnShow']";
     public static final String      CALENDARPOPUPXPATH      = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_CalendarPopup1_button']";
     
+    public static final String      CALENDARBACKXPATH       = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_CalendarPopup1_calendar']/table/tbody/tr[1]/td[1]/span";
+    public static final String      CALENDARFORWARDXPATH    = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_CalendarPopup1_calendar']/table/tbody/tr[1]/td[3]/span";
+
+    public static final String      CALENDARBODYXPATH       = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_CalendarPopup1_calendar']/table/tbody";
+
+    public static final String      PROJECTNAMEXPATH        = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_FormView1_ddlProjectName']";
+    public static final String      EXPENSENAMEXPATH        = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_FormView1_ddlExpenseName']";
+    public static final String      EXPENSEDESCRIPTIONXPATH = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_FormView1_DescriptionTextBox']";
+    public static final String      PAYMENTMETHODXPATH      = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_FormView1_ddlAccountPaymentMethodId']";
+    public static final String      CURRENCYXPATH           = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_FormView1_ddlAccountCurrencyId']";
+    public static final String      NETAMOUNTXPATH          = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_FormView1_AmountTextBox']";
+    public static final String      ADDBUTTONXPATH          = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_FormView1_btnAdd']";
+    
 }
 
 
