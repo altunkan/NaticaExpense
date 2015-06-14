@@ -24,11 +24,12 @@ public class ExpenseBuilder {
         model.addColumn("Ödeme Yöntemi");
         model.addColumn("Para Birimi");
         model.addColumn("Net Tutar");
+        model.addColumn("Açıklama");
     }
     
     public void populateTable(DefaultTableModel model, List<Expense> expenses) {
         for (Expense e : expenses) {
-            model.addRow(new Object[]{e.getExpenseEntryDateString(), e.getProjectName(), e.getExpenseName(), e.getPaymentMethod(), e.getCurrency(), e.getNetAmount()});
+            model.addRow(new Object[]{e.getExpenseEntryDateString(), e.getProjectName(), e.getExpenseName(), e.getPaymentMethod(), e.getCurrency(), e.getNetAmount(), e.getDescription()});
         }        
     }
     
@@ -42,7 +43,7 @@ public class ExpenseBuilder {
     
     public JComboBox generateExpenseTypeComboBox() {
         JComboBox comboBox = new JComboBox();
-        for (String s : ExpenseConstants.EXPENSETYPES) {
+        for (String s : ExpenseConstants.EXPENSETYPES[0]) {
             comboBox.addItem(s);
         }
         return comboBox;        

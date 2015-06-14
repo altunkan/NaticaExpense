@@ -6,13 +6,17 @@
 
 package org.natica.expense;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  *
  * @author Anil
  */
 public class ExpenseConstants {
     public static final String[]    PROJECTS                = {"Anadolu Sigorta AP-AR", "Natica Ofis"}; 
-    public static final String[]    EXPENSETYPES            = {"Öğle Yemeği"};
+    public static final String[][]  EXPENSETYPES            = {{"Öğle Yemeği", "18"}};
+    public static Map<String, Integer> expenseTypeMap       = new HashMap<String, Integer>();
     public static final String[]    PAYMENTMETHOD           = {"Cash", "Personal Credit Card"};
     public static final String[]    CURRENCY                = {"TRY", "USD"};
     
@@ -30,6 +34,7 @@ public class ExpenseConstants {
     
     public static final String      CALENDARBACKXPATH       = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_CalendarPopup1_calendar']/table/tbody/tr[1]/td[1]/span";
     public static final String      CALENDARFORWARDXPATH    = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_CalendarPopup1_calendar']/table/tbody/tr[1]/td[3]/span";
+    public static final String      CALENDARACTIVEMONTHXPATH= ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_CalendarPopup1_calendar']/table/tbody/tr[1]/td[2]/span";
 
     public static final String      CALENDARBODYXPATH       = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_CalendarPopup1_calendar']/table/tbody";
 
@@ -40,6 +45,7 @@ public class ExpenseConstants {
     public static final String      CURRENCYXPATH           = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_FormView1_ddlAccountCurrencyId']";
     public static final String      NETAMOUNTXPATH          = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_FormView1_AmountTextBox']";
     public static final String      ADDBUTTONXPATH          = ".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_FormView1_btnAdd']";
+    public static final String      SUBMITBUTTONXPATH       = "//*[@id=\"ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_btnSubmit\"]";
     
 }
 

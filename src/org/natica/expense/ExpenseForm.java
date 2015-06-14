@@ -8,6 +8,7 @@ package org.natica.expense;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import org.natica.expense.exceptions.ExpenseExcelFormatException;
 import java.io.File;
 import java.io.IOException;
@@ -16,10 +17,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -35,8 +41,15 @@ public class ExpenseForm extends javax.swing.JFrame {
      * Creates new form ExpenseForm
      */
     public ExpenseForm() {
+        fillExpenseTypeMap();
         initComponents();
     }
+    
+    private void fillExpenseTypeMap() {
+        for (String[] EXPENSETYPES : ExpenseConstants.EXPENSETYPES) {
+            ExpenseConstants.expenseTypeMap.put(EXPENSETYPES[0], Integer.parseInt(EXPENSETYPES[1]));
+        }
+    }    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -70,8 +83,8 @@ public class ExpenseForm extends javax.swing.JFrame {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 1190, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 1219, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -127,25 +140,34 @@ public class ExpenseForm extends javax.swing.JFrame {
             File selectedFile = fileChooser.getSelectedFile();
             String fileExtension = selectedFile.getName().substring(selectedFile.getName().indexOf(".")+1);
             if ("xls".equals(fileExtension) || "xlsx".equals(fileExtension)) {
-                ExpenseParser xp = new ExpenseParser();
+                ExpenseUtility xp = new ExpenseUtility();
                 try {
                     ExpenseBuilder eb = new ExpenseBuilder();
                     DefaultTableModel model = new DefaultTableModel() {
                         @Override
                         public boolean isCellEditable(int row, int column) {
-                            return column != 0 && column != 5;
+                            //return column != 0 && column != 5;
+                            return false;
                         }                        
                     };
                     JTable table = new JTable(model);
                     eb.generateHeaders(model);
+                    table.getColumnModel().getColumn(0).setPreferredWidth(70);
                     table.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(eb.generateProjectComboBox()));
+                    table.getColumnModel().getColumn(1).setPreferredWidth(150);
                     table.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(eb.generateExpenseTypeComboBox()));
+                    table.getColumnModel().getColumn(2).setPreferredWidth(110);
                     table.getColumnModel().getColumn(3).setCellEditor(new DefaultCellEditor(eb.generatePaymentMethodComboBox()));
+                    table.getColumnModel().getColumn(3).setPreferredWidth(120);
                     table.getColumnModel().getColumn(4).setCellEditor(new DefaultCellEditor(eb.generateCurrencyComboBox()));
+                    table.getColumnModel().getColumn(4).setPreferredWidth(70);
+                    table.getColumnModel().getColumn(5).setPreferredWidth(50);
+                    table.getColumnModel().getColumn(6).setPreferredWidth(550);
                     DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
                     rightRenderer.setHorizontalAlignment(SwingConstants.RIGHT);
                     table.getColumnModel().getColumn(5).setCellRenderer(rightRenderer);
                     expenses = xp.parseExcel(selectedFile);
+                    xp.generateDescription(expenses);
                     eb.populateTable(model, expenses);
 
                     jScrollPane1.setViewportView(table);
@@ -165,9 +187,44 @@ public class ExpenseForm extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
-        // TODO add your handling code here:
-        ExpenseImport ei = new ExpenseImport(ExpenseConstants.BASEURL);
-        ei.importExpenes(expenses);
+        boolean hasError = false;
+        JTextField username = new JTextField();
+        JPasswordField  password = new JPasswordField();
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Support Kullanıcı Adı"));
+        panel.add(username);
+        panel.add(new JLabel("Support Parola"));
+        panel.add(password);
+        int result = JOptionPane.showConfirmDialog(null, panel, "Onay", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);        
+        if (result == JOptionPane.OK_OPTION) {
+            ExpenseImport ei = new ExpenseImport(ExpenseConstants.BASEURL);
+            char[] passwordArray = password.getPassword();
+            String passwordStr = String.valueOf(passwordArray);
+            System.out.println(passwordStr);
+            if (username.getText() == null || "".equals(username.getText().trim())) {
+                JOptionPane.showMessageDialog(null, "Kullanıcı Adı Zorunludur", "Hatalı Giriş!", JOptionPane.ERROR_MESSAGE);                
+                hasError = true;
+            }
+            
+            if (passwordArray.length == 0) {
+                JOptionPane.showMessageDialog(null, "Parola Zorunludur", "Hatalı Giriş!", JOptionPane.ERROR_MESSAGE);                
+                hasError = true;                
+            }
+            
+            if (expenses != null) {
+                if (expenses.isEmpty()) {
+                    JOptionPane.showMessageDialog(null, "Excel yüklenmemiştir.", "Hatalı Giriş!", JOptionPane.ERROR_MESSAGE);                
+                    hasError = true;                
+                }
+            }
+            else  {
+                JOptionPane.showMessageDialog(null, "Excel yüklenmemiştir.", "Hatalı Giriş!", JOptionPane.ERROR_MESSAGE);                
+                hasError = true;                       
+            }
+            
+            if (!hasError)
+                ei.importExpenes(expenses, username.getText(), passwordStr);
+        }        
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     /**

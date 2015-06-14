@@ -16,12 +16,15 @@ import java.util.Date;
  */
 public class Expense {
     private Date expenseEntryDate;
-    private String expenseEntryDateStr;
     private String projectName;
     private String expenseName;
     private String paymentMethod;
     private String currency;
     private BigDecimal netAmount;
+    private Integer documentNumber;
+    private String restaurant;
+    private BigDecimal vatAmount;
+    private String description;
 
     /**
      * @return the expenseEntryDate
@@ -111,5 +114,61 @@ public class Expense {
         String pattern = "dd.MM.yyyy";
         SimpleDateFormat format = new SimpleDateFormat(pattern);
         return format.format(getExpenseEntryDate());
+    }
+
+    /**
+     * @return the documentNumber
+     */
+    public Integer getDocumentNumber() {
+        return documentNumber;
+    }
+
+    /**
+     * @param documentNumber the documentNumber to set
+     */
+    public void setDocumentNumber(Integer documentNumber) {
+        this.documentNumber = documentNumber;
+    }
+
+    /**
+     * @return the restaurant
+     */
+    public String getRestaurant() {
+        return restaurant;
+    }
+
+    /**
+     * @param restaurant the restaurant to set
+     */
+    public void setRestaurant(String restaurant) {
+        this.restaurant = restaurant;
+    }
+
+    /**
+     * @return the vatAmount
+     */
+    public BigDecimal getVatAmount() {
+        return vatAmount;
+    }
+
+    /**
+     * @param vatAmount the vatAmount to set
+     */
+    public void setVatAmount(BigDecimal vatAmount) {
+        this.vatAmount = vatAmount;
+    }
+
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

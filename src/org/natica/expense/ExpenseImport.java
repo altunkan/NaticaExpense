@@ -17,15 +17,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.NoAlertPresentException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -36,16 +33,15 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 public class ExpenseImport {
     private WebDriver driver;
     private final String baseUrl;    
-    private boolean acceptNextAlert = true;
+    private boolean acceptNextAlert;
     
     public ExpenseImport(String baseUrl) {
         this.baseUrl = baseUrl;
     }
     
     private void setUpDriverConfig(long waitSeconds) {
-            driver = new FirefoxDriver();
-            driver.manage().timeouts().implicitlyWait(waitSeconds, TimeUnit.SECONDS);
-            driver.manage().timeouts().setScriptTimeout(waitSeconds, TimeUnit.SECONDS);
+        driver = new FirefoxDriver();
+        driver.manage().timeouts().implicitlyWait(waitSeconds, TimeUnit.SECONDS);
     }    
     
     private void openBrowser() {
@@ -113,17 +109,16 @@ public class ExpenseImport {
         return null;
     }
     
-    public void importExpenes(List<Expense> expenses) {
+    public void importExpenes(List<Expense> expenses, String username, String password) {
         setUpDriverConfig(ExpenseConstants.WAITSECONDS);
         openBrowser();
-        login("anil@natica.com.tr", "elansele");
+        login(username, password);
         goToExpensePage();
-        WebDriverWait wait = new WebDriverWait(driver, 10);
         for (Expense e : expenses) {
             WebElement calendarButton = driver.findElement(By.xpath(ExpenseConstants.CALENDARPOPUPXPATH));
             calendarButton.click();
             
-            String activeMonthYear = driver.findElement(By.xpath(".//*[@id='ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_CalendarPopup1_calendar']/table/tbody/tr[1]/td[2]/span")).getText();
+            String activeMonthYear = driver.findElement(By.xpath(ExpenseConstants.CALENDARACTIVEMONTHXPATH)).getText();
             DateFormat format = new SimpleDateFormat("MMMM yyyy");
             Date activeDate = null;
             try {
@@ -152,88 +147,80 @@ public class ExpenseImport {
             Select expenseNameSelect = new Select(expenseName);
             expenseNameSelect.selectByVisibleText(e.getExpenseName());
             expenseName.sendKeys(Keys.TAB);
-
+            waitSeconds(3);
                     
             WebElement description = driver.findElement(By.xpath(ExpenseConstants.EXPENSEDESCRIPTIONXPATH));
-            description.sendKeys(Keys.chord(Keys.CONTROL, "a"), "qwe");
+            description.sendKeys(Keys.chord(Keys.CONTROL, "a"), e.getDescription());
+            description.sendKeys(Keys.TAB);
+            
             
             WebElement paymentMethod = driver.findElement(By.xpath(ExpenseConstants.PAYMENTMETHODXPATH));
             Select paymentMethodSelect = new Select(paymentMethod);
             paymentMethodSelect.selectByVisibleText(e.getPaymentMethod());
 
-            WebElement netAmount = driver.findElement(By.id("ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_FormView1_AmountTextBox"));
-                /*JavascriptExecutor js = null;
-                if (driver instanceof JavascriptExecutor) {
-                js = (JavascriptExecutor)driver;
-                }
-                js.executeScript("document.getElementById('ctl00_ctl00_ctl00_CB_CB_ContentPlaceHolderBody_CtlAccountExpenseEntryList1_FormView1_AmountTextBox').setAttribute('value', '12')");*/
-          
-                
-                netAmount.clear();
-              //netAmount.sendKeys(Keys.HOME,Keys.chord(Keys.SHIFT,Keys.END),"12");
-                netAmount.sendKeys("12");
-              netAmount.sendKeys(Keys.TAB);
-              
-                //executeScript("document.getElementById('elementID').setAttribute('value', 'new value for element')");
-                //closeAlertAndGetItsText();
-                
+            WebElement netAmount = driver.findElement(By.xpath(ExpenseConstants.NETAMOUNTXPATH));
+            netAmount.sendKeys(Keys.HOME,Keys.chord(Keys.SHIFT,Keys.END), e.getNetAmount().toString().replace(".", ","));
+            netAmount.sendKeys(Keys.TAB);
+            waitSeconds(3);
 
-// element = wait.until(ExpectedConditions.textToBePresentInElementValue(netAmount, "12"));                
+            WebElement addButton = driver.findElement(By.xpath(ExpenseConstants.ADDBUTTONXPATH));
+            addButton.click();
+            acceptNextAlert = true;
+            closeAlertAndGetItsText();
+            
+            WebElement submitButton = driver.findElement(By.xpath(ExpenseConstants.SUBMITBUTTONXPATH));
+            submitButton.click();
                 
-                /*WebElement addButton = driver.findElement(By.xpath(ExpenseConstants.ADDBUTTONXPATH));
-                addButton.click();
-                
-                driver.switchTo().alert().accept();*/
         }
     }
+
     
-  private boolean isElementPresent(By by) {
-    try {
-      driver.findElement(by);
-      return true;
-    } catch (NoSuchElementException e) {
-      return false;
+    private boolean isElementPresent(By by) {
+        try {
+            driver.findElement(by);
+            return true;
+        } catch (NoSuchElementException e) {
+            return false;
+        }
     }
-  }
 
-  private boolean isAlertPresent() {
-    try {
-      driver.switchTo().alert();
-      return true;
-    } catch (NoAlertPresentException e) {
-      return false;
+    private boolean isAlertPresent() {
+        try {
+            driver.switchTo().alert();
+            return true;
+        } catch (NoAlertPresentException e) {
+            return false;
+        }
     }
-  }
 
-  private String closeAlertAndGetItsText() {
-    try {
-      Alert alert = driver.switchTo().alert();
-      String alertText = alert.getText();
-      if (acceptNextAlert) {
-        alert.accept();
-      } else {
-        alert.dismiss();
-      }
-      return alertText;
-    } finally {
-      acceptNextAlert = true;
+    private String closeAlertAndGetItsText() {
+        try {
+            Alert alert = driver.switchTo().alert();
+            String alertText = alert.getText();
+            if (acceptNextAlert) {
+                alert.accept();
+            } else {
+                alert.dismiss();
+            }
+            return alertText;
+        } finally {
+            acceptNextAlert = true;
+        }
     }
-  }
   
     public static void waitSeconds(int secons) {
-    System.out.print("Pausing for " + secons + " seconds: ");
-    try {
-      Thread.currentThread();		
-      int x = 1;
-      while(x <= secons) {
-        Thread.sleep(1000);
-        System.out.print(" " + x );
-        x = x + 1;
-      }
-      System.out.print('\n');
-    } catch (InterruptedException ex) {
-      ex.printStackTrace();
-    }	
-  }
-
+        System.out.print("Pausing for " + secons + " seconds: ");
+        try {
+            Thread.currentThread();		
+            int x = 1;
+            while(x <= secons) {
+                Thread.sleep(1000);
+                System.out.print(" " + x );
+                x = x + 1;
+            }
+            System.out.print('\n');
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }	
+    }
 }

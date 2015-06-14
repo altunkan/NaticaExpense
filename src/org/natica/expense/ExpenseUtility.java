@@ -12,6 +12,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.ss.usermodel.Cell;
@@ -23,7 +24,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  *
  * @author Anil
  */
-public class ExpenseParser {
+public class ExpenseUtility {
     public List<Expense> parseExcel(File file) throws IOException, ExpenseExcelFormatException {
         List<Expense> expenses = new ArrayList<Expense>();
         FileInputStream fis;
@@ -85,6 +86,18 @@ public class ExpenseParser {
                     }
                     e.setNetAmount(BigDecimal.valueOf(cell.getNumericCellValue()));
                 }
+                else if (cell.getColumnIndex() == 6) {
+                    if (cell.getCellType() != Cell.CELL_TYPE_STRING) {
+                        throw new ExpenseExcelFormatException("Hatalı veri! Satır:"+row.getRowNum()+" Sütun:"+cell.getColumnIndex() + " Hata Nedeni: Veri tipi yazı değil");
+                    }
+                    e.setRestaurant(cell.getStringCellValue());
+                }
+                else if (cell.getColumnIndex() == 7) {
+                    if (cell.getCellType() != Cell.CELL_TYPE_NUMERIC) {
+                        throw new ExpenseExcelFormatException("Hatalı veri! Satır:"+row.getRowNum()+" Sütun:"+cell.getColumnIndex() + " Hata Nedeni: Veri tipi nümerik değil");
+                    }
+                    e.setDocumentNumber(Integer.valueOf((int)cell.getNumericCellValue()));
+                }                
             }
             expenses.add(e);
         }
@@ -116,7 +129,32 @@ public class ExpenseParser {
         
         if (!"NET_AMOUNT".equals(r.getCell(5).getStringCellValue())) 
             return false;
-                                                        
+        
+        if (!"RESTAURANT".equals(r.getCell(6).getStringCellValue()))
+            return false;
+        
+        if (!"DOCUMENT_NUMBER".equals(r.getCell(7).getStringCellValue()))
+            return false;
+        
         return true;
     }
+    
+    public void generateDescription(List<Expense> expenses) {
+        Iterator<Expense> i = expenses.iterator();
+        BigDecimal hundrand = new BigDecimal("100");
+        while (i.hasNext()) {
+            Expense e = i.next();
+            Integer vatRate = ExpenseConstants.expenseTypeMap.get(e.getExpenseName());
+            BigDecimal vatBd = BigDecimal.valueOf(vatRate.intValue());
+            BigDecimal vatAmount = e.getNetAmount().subtract((e.getNetAmount().multiply(hundrand)).divide(vatBd.add(hundrand), 2, BigDecimal.ROUND_HALF_UP));
+            e.setVatAmount(roundBd(vatAmount));
+            String description = e.getRestaurant() + " fiş no:" + e.getDocumentNumber().toString() + " toplam tutar:" + e.getNetAmount().toString() + " kdv:%" + vatRate.toString() + " kdv tutarı:" + e.getVatAmount().toString();
+            e.setDescription(description);
+        }
+    }
+    
+    public BigDecimal roundBd(BigDecimal value) {
+        return value.setScale(2, BigDecimal.ROUND_HALF_UP);
+    }    
+
 }
